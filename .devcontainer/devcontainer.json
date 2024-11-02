@@ -1,0 +1,14 @@
+{
+  "name": "tf-container",
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "args": {
+      "USER": "${localEnv:USER}"
+    }
+  },
+  "runArgs": ["--gpus", "all"],
+  "remoteEnv": {
+    "PYTHONHASHSEED": "112"
+  },
+  "remoteUser": "${localEnv:USER}"
+}

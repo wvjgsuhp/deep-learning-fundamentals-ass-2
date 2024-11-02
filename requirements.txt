@@ -1,0 +1,10 @@
+matplotlib
+numpy
+pandas
+pandas-stubs
+pandera
+pyarrow
+PyYAML
+scikit-image
+types-PyYAML
+types-tensorflow
