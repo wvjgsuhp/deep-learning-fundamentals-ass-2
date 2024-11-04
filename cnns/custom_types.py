@@ -1,4 +1,4 @@
-from typing import Callable, ParamSpec, TypeVar, cast
+from typing import Callable, Literal, NotRequired, ParamSpec, TypedDict, TypeVar, Union, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -8,12 +8,45 @@ _P2 = ParamSpec("_P2")
 _T = TypeVar("_T")
 _Self = TypeVar("_Self")
 
+LayerName = Literal["dense_relu", "dense", "mlp"]
 NPFloats = npt.NDArray[np.float64]
 NPFloatMatrix = np.ndarray[tuple[int, int], np.dtype[np.float64]]
 NPImages = np.ndarray[tuple[int, int, int, int], np.dtype[np.float64]]
 NPInt = npt.NDArray[np.int64]
 NPIntMatrix = np.ndarray[tuple[int, int], np.dtype[np.int64]]
 RecursiveDict = dict[str, dict[str, "RecursiveDict | str | int"]]
+
+MI = TypeVar("MI", bound=Union[NPFloatMatrix, NPImages])
+
+
+# generic key is not supported
+class Layer(TypedDict):
+    layer: LayerName
+    units: NotRequired[int]
+    n: NotRequired[int]
+    input_dim: NotRequired[int]
+    output_dim: NotRequired[int]
+    rate: NotRequired[float]
+
+
+Layers = list[Layer]
+
+
+class Config(TypedDict):
+    learning_rates: list[float]
+    architectures: list[Layers]
+
+
+class X(TypedDict):
+    train: NPFloatMatrix
+    validation: NPFloatMatrix
+    test: NPFloatMatrix
+
+
+class Y(TypedDict):
+    train: NPInt
+    validation: NPInt
+    test: NPInt
 
 
 # https://stackoverflow.com/a/71968448
