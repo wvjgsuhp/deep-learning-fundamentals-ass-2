@@ -11,8 +11,15 @@ tf_layers = tf.keras.layers
 
 class BaseTransferClassifier:
     def __init__(
-        self, layers: Layers, learning_rate: float = 0.0001, loss: str = "categorical_crossentropy"
+        self,
+        layers: Layers,
+        learning_rate: float = 0.0001,
+        loss: str = "categorical_crossentropy",
+        random_seed: int | None = None,
     ) -> None:
+        tf.random.set_seed(random_seed)
+        tf.keras.utils.set_random_seed(random_seed)
+
         self.is_model_compiled = False
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
         self.loss = loss
@@ -26,11 +33,6 @@ class BaseTransferClassifier:
         x = tf.keras.layers.Flatten()(base_model.output)
         x = self._get_learning_layers(layers, x)
         y = TFLayer.dense(10, activation="softmax")(x)
-
-        # x = tf.keras.layers.Flatten()(base_model.output)
-        # x = self.dense_relu(512)(x)
-        # x = self.dense_relu(256)(x)
-        # y = self.dense(10, activation="softmax")(x)
 
         return tf.keras.Model(inputs=base_model.input, outputs=y)
 

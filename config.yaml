@@ -1,4 +1,5 @@
-learning_rates: [0.0001]
+random_seed: 112
+learning_rates: [0.0001, 0.0003, 0.001, 0.003]
 architectures:
   # layer and the rest is its kwargs
   - []
@@ -10,3 +11,7 @@ architectures:
       units: 1024
     - layer: dense_relu
       units: 512
+  - - layer: dense_relu
+      units: 2048
+    - layer: dense_relu
+      units: 1024

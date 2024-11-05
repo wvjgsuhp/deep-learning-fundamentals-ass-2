@@ -8,15 +8,19 @@ from cnns.utils import parse_config, train_test_split
 
 if __name__ == "__main__":
     config = parse_config("./config.yaml")
-    data: DataSet = {"train": {}, "validation": {}, "test": {}}
 
     y: Y = {}
     x_train, y_train = read_cifar10_train()
-    x_train, y["train"], x_validate, y["validation"] = train_test_split(x_train, y_train, test_ratio=0.2)
+    x_train, y["train"], x_validate, y["validation"] = train_test_split(
+        x_train, y_train, test_ratio=0.2, random_seed=config["random_seed"]
+    )
     y_train = tf.keras.utils.to_categorical(y["train"], 10)
     y_validate = tf.keras.utils.to_categorical(y["validation"], 10)
 
     x_test, y["test"] = read_cifar10_test()
+    metrics = Metrics("./metrics.csv", y.keys())
+
+    batch_size = 512
 
     for Model in [VGG16, VGG19, ResNet50]:
         x: X = {
@@ -26,14 +30,27 @@ if __name__ == "__main__":
         }
         for lr in config["learning_rates"]:
             for layers in config["architectures"]:
-                model = Model(layers, learning_rate=lr)
+                model = Model(layers, learning_rate=lr, random_seed=config["random_seed"])
                 model.fit(
                     x["train"],
                     y_train,
                     epochs=10000,
-                    batch_size=512,
+                    batch_size=batch_size,
                     validation_data=(x["validation"], y_validate),
                 )
-                y_pred = model.predict(x_test)
-                prediction_class = Model.get_prediction_classes(y_pred)
-                print(f"Accuracy: {Model.get_accuracy(y_test, prediction_class)}")
+
+                predictions = {
+                    "train": Model.get_prediction_classes(model.predict(x["train"])),
+                    "validation": Model.get_prediction_classes(model.predict(x["validation"])),
+                    "test": Model.get_prediction_classes(model.predict(x["test"])),
+                }
+
+                parameters = {
+                    "batch_size": batch_size,
+                    "learning_rate": lr,
+                    "base_model": Model.__name__,
+                    "architecture": layers,
+                }
+                accuracies = Metrics.get_accuracies(y, predictions)
+
+                metrics.write(parameters, accuracies)

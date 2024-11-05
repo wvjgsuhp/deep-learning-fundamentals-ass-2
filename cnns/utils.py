@@ -19,10 +19,13 @@ def parse_config(config_path: str) -> Config:
 
 
 def train_test_split(
-    x: npt.NDArray[T], y: npt.NDArray[R], test_ratio: float
+    x: npt.NDArray[T],
+    y: npt.NDArray[R],
+    test_ratio: float,
+    random_seed: int | None = None,
 ) -> tuple[npt.NDArray[T], npt.NDArray[R], npt.NDArray[T], npt.NDArray[R]]:
     id_range = range(len(x))
-    train_ids, test_ids = split_train_test_id(id_range, test_ratio)
+    train_ids, test_ids = split_train_test_id(id_range, test_ratio, random_seed)
 
     x_train = x[train_ids]
     y_train = y[train_ids]
@@ -35,7 +38,10 @@ def train_test_split(
 def split_train_test_id(
     id_range: range,
     test_ratio: float,
+    random_seed: int | None = None,
 ) -> TrainTestIds:
+    random.seed(random_seed)
+
     n_tests = int(len(id_range) * test_ratio)
 
     test_ids = list(random.sample(id_range, n_tests))
