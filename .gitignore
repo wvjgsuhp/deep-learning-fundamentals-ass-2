@@ -168,3 +168,5 @@ out/
 
 cifar*
 metrics.csv
+y.csv
+*.bk

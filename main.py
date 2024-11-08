@@ -1,3 +1,4 @@
+#!./env/bin/python
 import tensorflow as tf
 
 from cnns.custom_types import X, Y
@@ -19,8 +20,13 @@ if __name__ == "__main__":
 
     x_test, y["test"] = read_cifar10_test()
     metrics = Metrics("./metrics.csv", y.keys())
+    metrics.write_target(y, "truth", metrics.target_file)
 
-    batch_size = 512
+    print(f"# of train set: {x_train.shape}")
+    print(f"# of validate set: {x_validate.shape}")
+    print(f"# of test set: {x_test.shape}")
+
+    batch_size = 8192
 
     for Model in [VGG16, VGG19, ResNet50]:
         x: X = {
@@ -28,6 +34,9 @@ if __name__ == "__main__":
             "validation": Model.transform(x_validate),
             "test": Model.transform(x_test),
         }
+        best_accuracy = 0.0
+        best_y = {}
+
         for lr in config["learning_rates"]:
             for layers in config["architectures"]:
                 model = Model(layers, learning_rate=lr, random_seed=config["random_seed"])
@@ -37,6 +46,7 @@ if __name__ == "__main__":
                     epochs=10000,
                     batch_size=batch_size,
                     validation_data=(x["validation"], y_validate),
+                    verbose=2,
                 )
 
                 predictions = {
@@ -45,12 +55,18 @@ if __name__ == "__main__":
                     "test": Model.get_prediction_classes(model.predict(x["test"])),
                 }
 
+                accuracies = Metrics.get_accuracies(y, predictions)
+                if accuracies["validation"] > best_accuracy:
+                    best_accuracy = accuracies["validation"]
+                    best_y = predictions
+
                 parameters = {
                     "batch_size": batch_size,
                     "learning_rate": lr,
                     "base_model": Model.__name__,
                     "architecture": layers,
                 }
-                accuracies = Metrics.get_accuracies(y, predictions)
-
                 metrics.write(parameters, accuracies)
+
+        # write predictions from best model for further analysis
+        metrics.write_target(best_y, Model.__name__, metrics.target_file)
