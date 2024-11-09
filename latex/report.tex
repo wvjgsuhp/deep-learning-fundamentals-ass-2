@@ -275,10 +275,10 @@ For example, figure \ref{fig:example-architecture} illustrates a learning archit
 %-------------------------------------------------------------------------
 \subsection{Model Training}
 
-All models were developed in Python TensorFlow with model workloads executed on a GPU. For each model, in all
-convolutional layers, the pretrained weights were loaded and not further trained. Then, a few architectures with
-fully connected layers were connected to the pretrained layers and trained with the training set. All models
-were tuned with the hyperparameters in table \ref{tab:hyperparameters}.
+All models were developed in Python TensorFlow with model workloads executed on a GPU and a random seed of 112.
+For each model, in all convolutional layers, the pretrained weights were loaded and not further trained. Then, a
+few architectures with fully connected layers were connected to the pretrained layers and trained with the
+training set. All models were tuned with the hyperparameters in table \ref{tab:hyperparameters}.
 \begin{table}[!ht]
   \centering
   \caption{Hyperparameters used to train and tune the models}
@@ -356,7 +356,7 @@ However, the performances keep improving with more complexity in the hidden laye
 %-------------------------------------------------------------------------
 \section{Conclusion}
 
-The results in this work shows that ResNet50 might have better potential for transfer learning as the
+The results in this work show that ResNet50 might have better potential for transfer learning as the
 performance of all the models with additional hidden layers performed better than that of the one without
 additional layers. To extend this work, we could
 \begin{enumerate}
