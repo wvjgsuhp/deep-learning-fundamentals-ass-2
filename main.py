@@ -11,6 +11,7 @@ if __name__ == "__main__":
     config = parse_config("./config.yaml")
 
     y: Y = {}
+    # prepare train, validation, and test sets
     x_train, y_train = read_cifar10_train()
     x_train, y["train"], x_validate, y["validation"] = train_test_split(
         x_train, y_train, test_ratio=0.2, random_seed=config["random_seed"]
@@ -26,7 +27,7 @@ if __name__ == "__main__":
     print(f"# of validate set: {x_validate.shape}")
     print(f"# of test set: {x_test.shape}")
 
-    batch_size = 8192
+    batch_size = 4096
 
     for Model in [VGG16, VGG19, ResNet50]:
         x: X = {
@@ -37,8 +38,9 @@ if __name__ == "__main__":
         best_accuracy = 0.0
         best_y = {}
 
+        # loop through hyperparameters
         for lr in config["learning_rates"]:
-            for layers in config["architectures"]:
+            for i, layers in enumerate(config["architectures"]):
                 model = Model(layers, learning_rate=lr, random_seed=config["random_seed"])
                 model.fit(
                     x["train"],
@@ -55,6 +57,7 @@ if __name__ == "__main__":
                     "test": Model.get_prediction_classes(model.predict(x["test"])),
                 }
 
+                # calculate accuracies
                 accuracies = Metrics.get_accuracies(y, predictions)
                 if accuracies["validation"] > best_accuracy:
                     best_accuracy = accuracies["validation"]

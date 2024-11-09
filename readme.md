@@ -29,6 +29,8 @@
 2.  Render report.
 
     ```bash
+    ./analyze.py
+
     cd latex
     pdflatex --shell-escape report.tex \
         && bibtex report.aux \

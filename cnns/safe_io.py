@@ -35,6 +35,8 @@ def read_cifar10_test() -> tuple[NPFloatMatrix, NPInt]:
 def read_cifar10_train() -> tuple[NPFloatMatrix, NPInt]:
     base_file = "cifar-10-batches-py/data_batch_"
     x, y = _read_cifar10(f"{base_file}1")
+
+    # combine test datasets
     for i in range(2, 6):
         x_i, y_i = _read_cifar10(f"{base_file}{i}")
         x = np.append(x, x_i, axis=0)

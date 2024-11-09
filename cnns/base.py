@@ -13,10 +13,11 @@ class BaseTransferClassifier:
     def __init__(
         self,
         layers: Layers,
-        learning_rate: float = 0.0001,
+        learning_rate: float,
         loss: str = "categorical_crossentropy",
         random_seed: int | None = None,
     ) -> None:
+        # set seed for possible reproducibility
         tf.random.set_seed(random_seed)
         tf.keras.utils.set_random_seed(random_seed)
 
@@ -27,6 +28,7 @@ class BaseTransferClassifier:
         self._model = self.init_model(layers)
 
     def init_model(self, layers: Layers) -> tf.keras.Model:
+        # initialise model with additional layers
         base_model = self._get_base_model()
         base_model.trainable = False
 
@@ -43,13 +45,14 @@ class BaseTransferClassifier:
     @property
     def model(self) -> tf.keras.Model:
         if not self.is_model_compiled:
-            self._model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss=self.loss)
+            self._model.compile(optimizer=self.optimizer, loss=self.loss)
             self.is_model_compiled = True
 
         return self._model
 
     @copy_args(tf.keras.Model.fit)
     def fit(self, *args, **kwargs: Any) -> None:
+        # fit with early stopping
         early_stopping = tf.keras.callbacks.EarlyStopping(patience=20, restore_best_weights=True)
         kwargs["callbacks"] = [early_stopping]
 
@@ -93,6 +96,7 @@ class TFLayer:
 
     @staticmethod
     def get_tensor_from_config(layers: Layers, input_: tf.Tensor) -> tf.Tensor:
+        # create a tensor from a config
         tensor = input_
         for layer in layers:
             kwargs = layer.copy()

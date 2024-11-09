@@ -170,3 +170,6 @@ cifar*
 metrics.csv
 y.csv
 *.bk
+*-performance.tex
+assets/
+*.ipynb
